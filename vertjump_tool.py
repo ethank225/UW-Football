@@ -1,3 +1,4 @@
+!pip install streamlit_options_menu 
 import streamlit as st
 import pandas as pd
 from streamlit_option_menu import option_menu
@@ -49,7 +50,7 @@ def page1():
         st.dataframe(st.session_state.fill_in)
     with col2:
         st.title("Positional Leaderboard")
-        selected_position = st.selectbox("Select Position", template['Pos'])
+        selected_position = st.selectbox("Select Position", template['Pos'].unique())
         filtered_df = st.session_state.fill_in[st.session_state.fill_in['position'] == selected_position][['player_name', 'max_jump']]
         filtered_df = filtered_df.sort_values(by='max_jump', ascending=False)
         st.dataframe(filtered_df)
