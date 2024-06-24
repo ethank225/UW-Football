@@ -85,7 +85,7 @@ def page1():
     for name in st.session_state.fill_in['player_name']:
         max_jump_value = st.session_state.fill_in.loc[st.session_state.fill_in['player_name'] == name, 'max_jump'].values[0]
         template.loc[template['Player'] == name, 'Vertical Jump (Jump Mat)'] = max_jump_value
-    template.to_csv('/Users/ethan/Desktop/UW Football/Updated_VERTICAL_JUMP.csv', index=False)
+    template.to_csv('UW Football/Updated_VERTICAL_JUMP.csv', index=False)
 
     template['Vertical Jump (Jump Mat)'] = template['Vertical Jump (Jump Mat)'].astype(float).round(2)
     updated_csv = template.to_csv(index=False)
