@@ -16,7 +16,7 @@ st.markdown(page_bg_css, unsafe_allow_html=True)
 
 
 # Load template data
-template = pd.read_csv("/VERTICAL JUMP (JUMP MAT).csv")
+template = pd.read_csv("VERTICAL JUMP (JUMP MAT).csv")
 def reset_session_state():
         for key in st.session_state.keys():
             del st.session_state[key]
