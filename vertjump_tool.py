@@ -1,13 +1,32 @@
-!pip install streamlit_options_menu 
 import streamlit as st
 import pandas as pd
 from streamlit_option_menu import option_menu
+import io
+
+page_bg_css = """
+<style>
+[data-testid="stAppViewContainer"] {
+    background-color: black;
+}
+</style>
+"""
+
+# Inject the custom CSS into the Streamlit app
+st.markdown(page_bg_css, unsafe_allow_html=True)
+
 
 # Load template data
 template = pd.read_csv("/Users/ethan/Desktop/UW Football/VERTICAL JUMP (JUMP MAT).csv")
+def reset_session_state():
+        for key in st.session_state.keys():
+            del st.session_state[key]
 
 def page1():
+    clear = st.button("Clear")
+    if(clear):
+        reset_session_state()
     col1, col2 = st.columns(2)
+    file_name = st.text_input("File Name:")
 
     def get_position(name):
         row = template.loc[template['Player'] == name]
@@ -25,6 +44,8 @@ def page1():
     # Format the names
 
     # Selectbox with formatted names
+    
+    
 
     with col1:
         st.title("Vertical Jump Tracker")
@@ -73,7 +94,7 @@ def page1():
     export_data = st.download_button(
         label="Download Updated CSV",
         data=updated_csv,
-        file_name='Updated_VERTICAL_JUMP.csv',
+        file_name= f'{file_name}.csv',
         mime='text/csv'
     )
 
@@ -81,32 +102,92 @@ def page1():
         st.success("Data exported successfully!")
         
 def page2():
+    template = pd.read_csv("/Users/ethan/Desktop/UW Football/VERTICAL JUMP (JUMP MAT).csv")
+
+    group1 = st.file_uploader("Group 1", type=['csv'])
+    group2 = st.file_uploader("Group 2", type=['csv'])
+    group3 = st.file_uploader("Group 3", type=['csv'])
+    
+        
+    # Function to add matching rows to the template
+    def add_matching_rows_to_template(template, group_files):
+        for group in group_files:
+            if group is not None:
+                df = pd.read_csv(group)
+                # Filter rows where the name is in the template's name column
+                matching_rows = df[df['Player'].isin(template['Player'])]
+                # Append these rows to the template DataFrame
+                template = pd.concat([template, matching_rows], ignore_index=True)
+        # Remove duplicates, keeping the last occurrence
+        template = template.drop_duplicates(subset=['Player'], keep='last')
+        return template
+
+    # Combine files
+    group_files = [group1, group2, group3]
+    updated_template = add_matching_rows_to_template(template, group_files)
+
+    # Display updated template
+    if not updated_template.empty:
+        st.write(updated_template)
+    else:
+        st.write("No matching names found or no files uploaded.")
+        
+    csv_buffer = io.StringIO()
+    updated_template.to_csv(csv_buffer, index=False)
+    csv_data = csv_buffer.getvalue()
+
+    # File name input
+    file_name = st.text_input("Name the file:")
+
+    # Create download button
+    export_data = st.download_button(
+        label="Download Updated CSV",
+        data=csv_data,
+        file_name=f'{file_name}.csv',
+        mime='text/csv'
+    )
+
+    if export_data:
+        st.success("Data successfully exported")
+    
+
+    # Function to read and merge files
+   
+
+    # Merge files
+
+    # Display merged data
+
+    # Function to combine files
+    
+    
     # Ensure the group is not reset each time the page is rendered
-    if 'group' not in st.session_state:
-        st.session_state.group = []
+    # if 'group' not in st.session_state:
+    #     st.session_state.group = []
 
-    player_selection = st.selectbox("Select Player", template['Player'])
-    add_player = st.button("Add Player")
-    if add_player:
-        st.session_state.group.append(player_selection)
-        st.success(f"{player_selection} added to the group!")
+    # player_selection = st.selectbox("Select Player", template['Player'])
+    # add_player = st.button("Add Player")
+    # if add_player:
+    #     st.session_state.group.append(player_selection)
+    #     st.success(f"{player_selection} added to the group!")
 
-    # Display the group
-    st.write("Group:", st.session_state.group)
+    # # Display the group
+    # st.write("Group:", st.session_state.group)
         
     
 #Page Navigation
-  
-
 
 with st.sidebar:
     selected = option_menu(
-        "Main Menu", ["Page 1", "Page 2"]
+        "Main Menu", ["Collect Data", "Merge Data"]
     )
 
 # Display the selected page
-if selected == "Page 1":
+if selected == "Collect Data":
     page1()
-elif selected == "Page 2":
+elif selected == "Merge Data":
     page2()
+    
+st.logo("/Users/ethan/Downloads/Washington_Huskies_logo.svg.png")
+
 
